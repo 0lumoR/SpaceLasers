@@ -1,6 +1,7 @@
 
 import pygame
 from code.Const import WIDTH, HEIGHT
+from code.Level import Level
 from code.Menu import Menu
 
 
@@ -17,6 +18,9 @@ class Game:
             option = menu.run()
 
             if option == "START GAME":
+                level = Level(self.window,'Level 1',option)
+                level.run()
+
                 print("Iniciar jogo (aqui vai a lógica do gameplay futuramente)")
 
             elif option == "HOW TO PLAY":

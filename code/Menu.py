@@ -1,14 +1,17 @@
 import pygame
 from pygame import Surface, Rect
-from code.Const import WIDTH, WHITE, MENU_OPTION, YELLOW
-from code.EntityFactory import EntityFactory
+
+from code.Const import WIDTH, WHITE, MENU_OPTION, YELLOW, HEIGHT
 
 
 class Menu:
     def __init__(self, window):
         self.window = window
-        self.surf = pygame.image.load('./assets/Background.png').convert_alpha()
-        self.rect = self.surf.get_rect(topleft=(0, 0))
+        self.bg_img = pygame.image.load("./assets/Background.png").convert_alpha()
+        self.bg_y1 = 0
+        self.bg_y2 = -HEIGHT
+        self.bg_speed = 1  # velocidade do movimento
+
 
 
     def run(self):
@@ -33,8 +36,19 @@ class Menu:
                     elif event.key == pygame.K_RETURN:
                         return MENU_OPTION[menu_option]
 
+            self.bg_y1 += self.bg_speed
+            self.bg_y2 += self.bg_speed
 
-            self.window.blit(self.surf, self.rect)
+            # quando uma imagem sai da tela, volta pro topo
+            if self.bg_y1 >= HEIGHT:
+                self.bg_y1 = -HEIGHT
+            if self.bg_y2 >= HEIGHT:
+                self.bg_y2 = -HEIGHT
+
+            # --- desenhar background (duas cópias) ---
+            self.window.blit(self.bg_img, (0, self.bg_y1))
+            self.window.blit(self.bg_img, (0, self.bg_y2))
+
             self.menu_text(100, "Space", WHITE, (WIDTH / 2, 100))
             self.menu_text(100, "Lasers", WHITE, (WIDTH / 2, 200))
 
@@ -44,25 +58,7 @@ class Menu:
 
             pygame.display.flip()
 
-    def create_entities(scene_type):
-        entities = pygame.sprite.Group()
 
-        # background sempre presente
-        background = EntityFactory.create("background")
-        entities.add(background)
-
-        # estrelas para menu ou level
-        for _ in range(20):
-            star = EntityFactory.create("star")
-            entities.add(star)
-
-        # meteoros só no level
-        if scene_type == "level":
-            for _ in range(5):
-                meteor = EntityFactory.create("meteor")
-                entities.add(meteor)
-
-        return entities
 
     def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
         text_font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
