@@ -6,4 +6,4 @@ class Background(Entity):
         super().__init__(name, position)
 
     def move(self):
-       pass
+        pass

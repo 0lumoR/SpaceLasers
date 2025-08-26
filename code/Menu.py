@@ -1,12 +1,13 @@
 import pygame
 from pygame import Surface, Rect
 from code.Const import WIDTH, WHITE, MENU_OPTION, YELLOW
+from code.EntityFactory import EntityFactory
 
 
 class Menu:
     def __init__(self, window):
         self.window = window
-        self.surf = pygame.image.load('./assets/Background1Bg.png').convert_alpha()
+        self.surf = pygame.image.load('./assets/Background.png').convert_alpha()
         self.rect = self.surf.get_rect(topleft=(0, 0))
 
 
@@ -42,6 +43,26 @@ class Menu:
                 self.menu_text(50, MENU_OPTION[i], color, (WIDTH / 2, 400 + 50 * i))
 
             pygame.display.flip()
+
+    def create_entities(scene_type):
+        entities = pygame.sprite.Group()
+
+        # background sempre presente
+        background = EntityFactory.create("background")
+        entities.add(background)
+
+        # estrelas para menu ou level
+        for _ in range(20):
+            star = EntityFactory.create("star")
+            entities.add(star)
+
+        # meteoros só no level
+        if scene_type == "level":
+            for _ in range(5):
+                meteor = EntityFactory.create("meteor")
+                entities.add(meteor)
+
+        return entities
 
     def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
         text_font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
