@@ -1,16 +1,13 @@
-from abc import ABC
 import pygame
+from abc import ABC
 
-class Entity(ABC):
+class Entity(ABC, pygame.sprite.Sprite):
     def __init__(self, name: str, position: tuple):
+        super().__init__()
         self.name = name
-        self.surf = pygame.image.load('./assets/' + name + '.png').convert_alpha()
-        self.rect = self.surf.get_rect(left=position[0], top=position[1])
+        self.image = pygame.image.load(f"./assets/{name}.png").convert_alpha()
+        self.rect = self.image.get_rect(topleft=position)
         self.speed = 0
 
-    def move(self):
+    def update(self):
         pass
-
-
-
-
