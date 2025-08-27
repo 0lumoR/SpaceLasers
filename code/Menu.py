@@ -10,15 +10,15 @@ class Menu:
         self.title_font = pygame.font.Font("./assets/kenvector_future.ttf", 70)
         self.selected = 0
         self.player_img = pygame.image.load("./assets/player.png").convert_alpha()
-        self.player_rect = self.player_img.get_rect(center=(WIDTH//2, HEIGHT - 100))
+        self.player_rect = self.player_img.get_rect(center=(WIDTH//2, 650 - 100))
 
     def run(self):
         pygame.mixer.music.load("./assets/menuGOsong.mp3")
         pygame.mixer.music.play(-1)
 
         clock = pygame.time.Clock()
-        running = True
-        while running:
+
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "EXIT"

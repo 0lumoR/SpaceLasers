@@ -3,7 +3,10 @@ WIDTH, HEIGHT = 900, 600
 FPS = 60
 
 # Menu opções
-MENU_OPTIONS = ("START GAME", "HOW TO PLAY", "SCORE", "EXIT")
+MENU_OPTIONS = ("START GAME",
+                "HOW TO PLAY",
+                "SCORE",
+                "EXIT")
 
 # Cores
 WHITE = (255, 255, 255)
