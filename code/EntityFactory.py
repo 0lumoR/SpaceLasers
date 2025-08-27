@@ -1,5 +1,7 @@
 from code.Background import Background
-from code.Const import HEIGHT
+from code.Const import HEIGHT, WIDTH
+from code.Player import Player
+
 
 class EntityFactory:
     @staticmethod
@@ -9,6 +11,9 @@ class EntityFactory:
             bgs.append(Background(f"LevelBg{i}", (0, 0)))
             bgs.append(Background(f"LevelBg{i}", (0, -HEIGHT)))
         return bgs
+
+
+
 
 
 

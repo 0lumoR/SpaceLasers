@@ -21,7 +21,7 @@ class Menu:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "EXIT"
+                    return quit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_DOWN:
                         self.selected = (self.selected + 1) % len(MENU_OPTIONS)
