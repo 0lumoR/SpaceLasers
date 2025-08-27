@@ -64,7 +64,4 @@ class Level:
 
             pygame.display.update()
 
-        # Retorna ao Game sem fechar o Pygame
-
-
-
+        # Retorna ao Game sem fechar o Pygam

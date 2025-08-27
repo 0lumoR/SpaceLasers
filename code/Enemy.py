@@ -17,3 +17,4 @@ class Enemy(Entity):
                 self.rect.bottom = 0
                 self.rect.x = randint(40, WIDTH - 40)
 
+

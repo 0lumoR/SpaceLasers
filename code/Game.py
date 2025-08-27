@@ -1,4 +1,3 @@
-
 import pygame
 from code.Const import WIDTH, HEIGHT
 from code.Level import Level
