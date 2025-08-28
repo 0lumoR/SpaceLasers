@@ -15,11 +15,16 @@ YELLOW = (255, 220, 90)
 
 # Velocidade de cada camada de background
 ENTITY_SPEED = {
-    "LevelBg1": 1,
-    "LevelBg2": 2,
-    "LevelBg3": 3,
-    "LevelBg4": 4,
+    'player':5,
+    'enemy1': 2,
+    'enemy2': 2,
+    'enemy3': 2,
+    'LevelBg1': 1,
+    'LevelBg2': 2,
+    'LevelBg3': 3,
+    'LevelBg4': 4
 }
+
 
 
 

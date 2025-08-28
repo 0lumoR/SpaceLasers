@@ -1,13 +1,15 @@
 import pygame
 from code.Entity import Entity
-from code.Const import WIDTH, HEIGHT
+from code.Const import WIDTH, HEIGHT, ENTITY_SPEED
+
 
 class Player(Entity):
     def __init__(self, name, position):
         super().__init__(name, position)
-        self.speed = 5  # velocidade do player
+        self.speed = ENTITY_SPEED[self.name]
+        self.rect = self.image.get_rect(center=position)
 
-    def update(self):
+    def move(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             self.rect.x -= self.speed

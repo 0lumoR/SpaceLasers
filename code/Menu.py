@@ -1,6 +1,7 @@
 import pygame
-from code.Const import WIDTH, HEIGHT, WHITE, YELLOW, MENU_OPTIONS
+from code.Const import WIDTH, WHITE, YELLOW, MENU_OPTIONS
 from code.EntityFactory import EntityFactory
+
 
 class Menu:
     def __init__(self, window):
@@ -10,15 +11,17 @@ class Menu:
         self.title_font = pygame.font.Font("./assets/kenvector_future.ttf", 70)
         self.selected = 0
         self.player_img = pygame.image.load("./assets/player.png").convert_alpha()
-        self.player_rect = self.player_img.get_rect(center=(WIDTH//2, 650 - 100))
+        self.player_rect = self.player_img.get_rect(center=(WIDTH // 2, 550))
 
     def run(self):
         pygame.mixer.music.load("./assets/menuGOsong.mp3")
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
         clock = pygame.time.Clock()
 
         while True:
+            clock.tick(60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return quit()
@@ -43,16 +46,13 @@ class Menu:
 
             # título
             title = self.title_font.render("SPACE LASERS", True, WHITE)
-            self.window.blit(title, (WIDTH//2 - title.get_width()//2, 100))
+            self.window.blit(title, (WIDTH // 2 - title.get_width() // 2, 100))
 
             # opções
             for i, option in enumerate(MENU_OPTIONS):
                 color = YELLOW if i == self.selected else WHITE
                 surf = self.font.render(option, True, color)
-                self.window.blit(surf, (WIDTH//2 - surf.get_width()//2, 300 + i*60))
+                self.window.blit(surf, (WIDTH // 2 - surf.get_width() // 2, 290 + i * 60))
 
             pygame.display.flip()
-            clock.tick(60)
-
-
 

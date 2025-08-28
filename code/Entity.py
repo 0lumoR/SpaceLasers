@@ -9,5 +9,5 @@ class Entity(ABC, pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=position)
         self.speed = 0
 
-    def update(self):
+    def move(self):
         pass
