@@ -10,9 +10,9 @@ class EntityFactory:
     @staticmethod
     def get_backgrounds():
         bgs = []
-        for i in range(1, 3):  # LevelBg1 até LevelBg4
+        for i in range(1, 3):  # LevelBg1 e LevelBg2
             bgs.append(Background(f"LevelBg{i}", (0, 0)))
-            bgs.append(Background(f"LevelBg{i}", (0, -HEIGHT)))
+            bgs.append(Background(f"LevelBg{i}", (0, -HEIGHT)))  # para efeito de scroll contínuo
         return bgs
 
     @staticmethod

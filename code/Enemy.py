@@ -12,10 +12,8 @@ class Enemy(Entity):
         self.shoot_chance = shoot_chance
         self.bullet_speed = bullet_speed
         self.bullet_dx = bullet_dx
-
-        # cooldown de tiro
         self.last_shot_time = 0
-        self.shoot_cooldown = shoot_cooldown  # em ms
+        self.shoot_cooldown = shoot_cooldown
 
     def move(self):
         self.rect.y += self.speed
@@ -30,6 +28,10 @@ class Enemy(Entity):
                 speed=self.bullet_speed,
                 dx=self.bullet_dx
             )
-            bullets.append(bullet)
+            bullets.add(bullet)  # ✅ usar add()
             self.last_shot_time = current_time
+
+    def update(self):
+        self.move()
+
 

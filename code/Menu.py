@@ -7,10 +7,8 @@ class Menu:
     def __init__(self, window):
         self.window = window
         self.bg_layers = EntityFactory.get_backgrounds()
-        self.font = pygame.font.Font("./assets/kenvector_future.ttf", 40)
-        self.title_font = pygame.font.Font("./assets/kenvector_future.ttf", 70)
         self.selected = 0
-        self.player_img = pygame.image.load("./assets/player.png").convert_alpha()
+        self.player_img = pygame.image.load("./assets/player.png")
         self.player_rect = self.player_img.get_rect(center=(WIDTH // 2, 550))
 
     def run(self):
@@ -45,13 +43,24 @@ class Menu:
             self.window.blit(self.player_img, self.player_rect)
 
             # título
-            title = self.title_font.render("SPACE LASERS", True, WHITE)
-            self.window.blit(title, (WIDTH // 2 - title.get_width() // 2, 100))
+            self.menu_text(70, "SPACE LASERS", WHITE, (WIDTH // 2, 100), center=True)
 
-            # opções
+            # opções do menu
             for i, option in enumerate(MENU_OPTIONS):
                 color = YELLOW if i == self.selected else WHITE
-                surf = self.font.render(option, True, color)
-                self.window.blit(surf, (WIDTH // 2 - surf.get_width() // 2, 290 + i * 60))
+                self.menu_text(40, option, color, (WIDTH // 2, 290 + i * 60), center=True)
 
             pygame.display.flip()
+
+    def menu_text(self, text_size: int, text: str, text_color: tuple, text_pos: tuple, center=False):
+        """Desenha texto na tela, similar ao level_text do Level.py"""
+        font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
+        surf = font.render(text, True, text_color).convert_alpha()
+        rect = surf.get_rect()
+        if center:
+            rect.center = text_pos
+        else:
+            rect.topleft = text_pos
+        self.window.blit(surf, rect)
+
+
