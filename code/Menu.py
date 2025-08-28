@@ -55,4 +55,3 @@ class Menu:
                 self.window.blit(surf, (WIDTH // 2 - surf.get_width() // 2, 290 + i * 60))
 
             pygame.display.flip()
-

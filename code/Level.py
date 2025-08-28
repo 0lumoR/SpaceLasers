@@ -1,11 +1,10 @@
 import pygame
 import random
-from pygame.font import Font
-from pygame import Surface, Rect
-
 from code.Const import WHITE, HEIGHT, WIDTH
-from code.Entity import Entity
 from code.EntityFactory import EntityFactory
+from code.Bullet import Bullet
+from code.Enemy import Enemy
+from code.Player import Player
 
 
 class Level:
@@ -15,14 +14,20 @@ class Level:
         self.bg_layers = EntityFactory.get_backgrounds()
         self.clock = pygame.time.Clock()
 
-        # entidades
-        self.entity_list: list[Entity] = []
-        self.player = EntityFactory.get_entity('player')
-        self.entity_list.append(self.player)
+        # --- GRUPOS DE SPRITES ---
+        self.player: Player = EntityFactory.get_entity('player')[0]
+        self.player_group = pygame.sprite.GroupSingle(self.player)
+        self.enemies = pygame.sprite.Group()
+        self.player_bullets = pygame.sprite.Group()
+        self.enemy_bullets = pygame.sprite.Group()
 
-        # lista só para inimigos
-        self.enemies: list[Entity] = []
-        self.spawn_timer = 0  # contador para spawn gradual
+        # spawn de inimigos
+        self.enemy_spawn_timer = 0
+        self.enemy_spawn_interval = 90  # frames (~1,5s a 60fps)
+
+        # cooldown de tiro do player
+        self.last_shot_time = 0
+        self.shoot_cooldown = 300  # ms
 
     def run(self):
         pygame.mixer.music.load('./assets/levelsong.mp3')
@@ -31,57 +36,81 @@ class Level:
 
         running = True
         while running:
-            dt = self.clock.tick(60)  # delta time em ms
+            self.clock.tick(60)
+            keys = pygame.key.get_pressed()
 
+            # --- EVENTOS ---
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
-            # atualizar backgrounds
-            for bg in self.bg_layers:
-                bg.update()
-
-            # movimentar entidades
+            # --- MOVIMENTO PLAYER ---
             self.player.move()
+
+            # --- TIRO PLAYER ---
+            if keys[pygame.K_SPACE]:
+                current_time = pygame.time.get_ticks()
+                if current_time - self.last_shot_time > self.shoot_cooldown:
+                    bullet = Bullet("playershot", self.player.rect.midtop, direction=-1, speed=10)
+                    self.player_bullets.add(bullet)
+                    self.last_shot_time = current_time
+
+            # --- SPAWN DE INIMIGOS ---
+            self.enemy_spawn_timer += 1
+            if self.enemy_spawn_timer >= self.enemy_spawn_interval:
+                self.enemy_spawn_timer = 0
+                enemy_type = random.choice(['enemy1', 'enemy2', 'enemy3'])
+                for enemy in EntityFactory.get_entity(enemy_type):
+                    self.enemies.add(enemy)
+
+            # --- MOVIMENTOS ---
+            self.enemies.update()
+            self.player_bullets.update()
+            self.enemy_bullets.update()
+
+            # inimigos tentam atirar
             for enemy in self.enemies:
-                enemy.move()
+                enemy.try_shoot(self.enemy_bullets)
 
-            # remover inimigos que saíram da tela
-            self.enemies = [enemy for enemy in self.enemies if enemy.rect.top <= HEIGHT]
+            # --- COLISÕES ---
+            # Player bullets x Enemies
+            hits = pygame.sprite.groupcollide(self.player_bullets, self.enemies, True, True)
+            for bullet, enemies_hit in hits.items():
+                for enemy in enemies_hit:
+                    print("Inimigo destruído!")
 
-            # controlar spawn (a cada ~2 segundos nasce um inimigo)
-            self.spawn_timer += dt
-            if self.spawn_timer > 2000:  # 2000 ms = 2 segundos
-                enemy_type = f'enemy{random.randint(1,3)}'
-                new_enemy = EntityFactory.get_entity(enemy_type, (random.randint(0, WIDTH-50), -50))
-                self.enemies.append(new_enemy)
-                self.spawn_timer = 0
+            # Enemy bullets x Player
+            if pygame.sprite.spritecollide(self.player_group.sprite, self.enemy_bullets, True):
+                print("Player atingido!")
 
-            # # --- DESENHO ---
-            # self.window.fill((0, 0, 0))
+            # Player x Enemies
+            if pygame.sprite.spritecollide(self.player_group.sprite, self.enemies, True):
+                print("Player colidiu com inimigo!")
 
-            # desenhar backgrounds
+            # --- DESENHO ---
+            self.window.fill((0, 0, 0))
             for bg in self.bg_layers:
                 self.window.blit(bg.image, bg.rect)
 
-            # desenhar player
-            self.window.blit(self.player.image, self.player.rect)
+            self.player_group.draw(self.window)
+            self.enemies.draw(self.window)
+            self.player_bullets.draw(self.window)
+            self.enemy_bullets.draw(self.window)
 
-            # desenhar inimigos
-            for enemy in self.enemies:
-                self.window.blit(enemy.image, enemy.rect)
-
-            # HUD
+            # debug info
             self.level_text(20, f'fps: {self.clock.get_fps():.0f}', WHITE, (10, HEIGHT - 35))
-            self.level_text(20, f'inimigos ativos: {len(self.enemies)}', WHITE, (10, HEIGHT - 20))
+            self.level_text(20, f'inimigos: {len(self.enemies)}', WHITE, (10, HEIGHT - 20))
+            self.level_text(20, f'tiros: {len(self.player_bullets) + len(self.enemy_bullets)}', WHITE, (10, HEIGHT - 50))
 
             pygame.display.flip()
 
         pygame.quit()
 
     def level_text(self, text_size: int, text: str, text_color: tuple, text_pos: tuple):
-        text_font: Font = pygame.font.SysFont(name="Arial", size=text_size)
-        text_surf: Surface = text_font.render(text, True, text_color).convert_alpha()
-        text_rect: Rect = text_surf.get_rect(left=text_pos[0], top=text_pos[1])
-        self.window.blit(source=text_surf, dest=text_rect)
+        font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
+        surf = font.render(text, True, text_color).convert_alpha()
+        rect = surf.get_rect(topleft=text_pos)
+        self.window.blit(surf, rect)
+
+
 
