@@ -48,12 +48,11 @@ class Level:
             self.player.move()
 
             # --- TIRO PLAYER ---
-            if keys[pygame.K_SPACE]:
-                current_time = pygame.time.get_ticks()
-                if current_time - self.last_shot_time > self.shoot_cooldown:
-                    bullet = Bullet("playershot", self.player.rect.midtop, direction=-1, speed=10)
-                    self.player_bullets.add(bullet)
-                    self.last_shot_time = current_time
+            current_time = pygame.time.get_ticks()
+            if keys[pygame.K_SPACE] and current_time - self.last_shot_time > self.shoot_cooldown:
+                bullet = Bullet("playershot", self.player.rect.midtop, direction=-1, speed=10)
+                self.player_bullets.add(bullet)  # ✅ usar add(), não append()
+                self.last_shot_time = current_time
 
             # --- SPAWN DE INIMIGOS ---
             self.enemy_spawn_timer += 1
@@ -61,7 +60,7 @@ class Level:
                 self.enemy_spawn_timer = 0
                 enemy_type = random.choice(['enemy1', 'enemy2', 'enemy3'])
                 for enemy in EntityFactory.get_entity(enemy_type):
-                    self.enemies.add(enemy)
+                    self.enemies.add(enemy)  # ✅ usar add()
 
             # --- MOVIMENTOS ---
             self.enemies.update()
@@ -70,20 +69,28 @@ class Level:
 
             # inimigos tentam atirar
             for enemy in self.enemies:
-                enemy.try_shoot(self.enemy_bullets)
+                enemy.try_shoot(self.enemy_bullets)  # ✅ bullets é um Group
+
+            # --- REMOÇÃO DE SPRITES FORA DA TELA ---
+            for enemy in list(self.enemies):
+                if enemy.rect.top > HEIGHT:
+                    self.enemies.remove(enemy)
+            for bullet in list(self.player_bullets):
+                if bullet.is_off_screen():
+                    self.player_bullets.remove(bullet)
+            for bullet in list(self.enemy_bullets):
+                if bullet.is_off_screen():
+                    self.enemy_bullets.remove(bullet)
 
             # --- COLISÕES ---
-            # Player bullets x Enemies
             hits = pygame.sprite.groupcollide(self.player_bullets, self.enemies, True, True)
             for bullet, enemies_hit in hits.items():
                 for enemy in enemies_hit:
                     print("Inimigo destruído!")
 
-            # Enemy bullets x Player
             if pygame.sprite.spritecollide(self.player_group.sprite, self.enemy_bullets, True):
                 print("Player atingido!")
 
-            # Player x Enemies
             if pygame.sprite.spritecollide(self.player_group.sprite, self.enemies, True):
                 print("Player colidiu com inimigo!")
 
@@ -111,6 +118,7 @@ class Level:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(topleft=text_pos)
         self.window.blit(surf, rect)
+
 
 
 
