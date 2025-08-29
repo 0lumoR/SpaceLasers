@@ -1,4 +1,3 @@
-import pygame
 from code.Entity import Entity
 from code.Const import HEIGHT
 

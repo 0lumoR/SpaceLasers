@@ -1,5 +1,5 @@
 import pygame
-from code.Const import WIDTH, HEIGHT
+from code.Const import HEIGHT
 
 class Life(pygame.sprite.Sprite):
     def __init__(self, pos):

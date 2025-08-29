@@ -1,5 +1,5 @@
 import pygame
-from code.Const import WIDTH, WHITE, YELLOW, MENU_OPTIONS, HEIGHT
+from code.Const import WIDTH, WHITE, HEIGHT
 from code.EntityFactory import EntityFactory
 
 
