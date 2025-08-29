@@ -3,6 +3,7 @@ import pygame
 from code.Entity import Entity
 from code.Bullet import Bullet
 
+
 class Enemy(Entity):
     def __init__(self, name: str, position, bullet_type="bullet_enemy", shoot_chance=0.01,
                  bullet_speed=6, bullet_dx=0, shoot_cooldown=1000):
@@ -33,5 +34,3 @@ class Enemy(Entity):
 
     def update(self):
         self.move()
-
-

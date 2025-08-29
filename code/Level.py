@@ -3,9 +3,11 @@ import random
 from code.Const import WHITE, HEIGHT, WIDTH
 from code.EntityFactory import EntityFactory
 from code.Bullet import Bullet
-from code.Enemy import Enemy
+from code.GameOver import GameOver
+from code.Life import Life
 from code.Player import Player
-from code.Explosion import Explosion  # Sua classe de explosão
+from code.Explosion import Explosion
+
 
 class Level:
     def __init__(self, window, name, difficulty):
@@ -14,28 +16,35 @@ class Level:
         self.bg_layers = EntityFactory.get_backgrounds()
         self.clock = pygame.time.Clock()
 
-        # Inicializar mixer e sons
-
-        self.shoot_sound = pygame.mixer.Sound("./assets/lasersfx.ogg")
-        self.shoot_sound.set_volume(0.3)
-        self.explosion_sound = pygame.mixer.Sound("./assets/explosionsfx.wav")  # <-- som da explosão
-        self.explosion_sound.set_volume(0.4)
-
         # --- GRUPOS DE SPRITES ---
         self.player: Player = EntityFactory.get_entity('player')[0]
+        self.player.health = 3
         self.player_group = pygame.sprite.GroupSingle(self.player)
         self.enemies = pygame.sprite.Group()
         self.player_bullets = pygame.sprite.Group()
         self.enemy_bullets = pygame.sprite.Group()
         self.explosions = pygame.sprite.Group()
+        self.life_drops = pygame.sprite.Group()
+
+        # HUD
+        self.score = 0
 
         # spawn de inimigos
         self.enemy_spawn_timer = 0
-        self.enemy_spawn_interval = 90  # frames (~1,5s a 60fps)
+        self.enemy_spawn_interval = 90  # frames
 
         # cooldown de tiro do player
         self.last_shot_time = 0
-        self.shoot_cooldown = 300  # ms
+        self.shoot_cooldown = 300
+
+        # timer
+        self.start_time = pygame.time.get_ticks()
+        self.elapsed_time = 0
+
+        # sons
+        pygame.mixer.init()
+        self.shoot_sound = pygame.mixer.Sound("./assets/lasersfx.ogg")
+        self.explosion_sound = pygame.mixer.Sound("./assets/explosionsfx.wav")
 
     def run(self):
         pygame.mixer.music.load('./assets/levelsong.mp3')
@@ -47,27 +56,32 @@ class Level:
             self.clock.tick(60)
             keys = pygame.key.get_pressed()
 
+            # atualizar timer
+            self.elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
+
+            # --- EVENTOS ---
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
 
-            # Atualizar backgrounds
+            # --- ATUALIZAR BACKGROUNDS ---
             for bg in self.bg_layers:
                 bg.update()
 
-            # Movimento player
+            # --- MOVIMENTO PLAYER ---
             self.player_group.update()
 
-            # Tiro player
-            current_time = pygame.time.get_ticks()
-            if keys[pygame.K_SPACE] and current_time - self.last_shot_time > self.shoot_cooldown:
-                bullet = Bullet("playershot", self.player.rect.midtop, direction=-1, speed=10)
-                self.player_bullets.add(bullet)
-                self.last_shot_time = current_time
-                self.shoot_sound.play()
+            # --- TIRO PLAYER ---
+            if self.player_group:
+                current_time = pygame.time.get_ticks()
+                if keys[pygame.K_SPACE] and current_time - self.last_shot_time > self.shoot_cooldown:
+                    bullet = Bullet("playershot", self.player.rect.midtop, direction=-1, speed=10)
+                    self.player_bullets.add(bullet)
+                    self.shoot_sound.play()
+                    self.last_shot_time = current_time
 
-            # Spawn inimigos
+            # --- SPAWN DE INIMIGOS ---
             self.enemy_spawn_timer += 1
             if self.enemy_spawn_timer >= self.enemy_spawn_interval:
                 self.enemy_spawn_timer = 0
@@ -75,17 +89,17 @@ class Level:
                 for enemy in EntityFactory.get_entity(enemy_type):
                     self.enemies.add(enemy)
 
-            # Atualizar sprites
+            # --- MOVIMENTOS ---
             self.enemies.update()
             self.player_bullets.update()
             self.enemy_bullets.update()
             self.explosions.update()
 
-            # Inimigos tentam atirar
+            # inimigos tentam atirar
             for enemy in self.enemies:
                 enemy.try_shoot(self.enemy_bullets)
 
-            # Remoção de sprites fora da tela
+            # --- REMOÇÃO DE SPRITES FORA DA TELA ---
             for enemy in list(self.enemies):
                 if enemy.rect.top > HEIGHT:
                     self.enemies.remove(enemy)
@@ -96,28 +110,47 @@ class Level:
                 if bullet.is_off_screen():
                     self.enemy_bullets.remove(bullet)
 
-            # Colisões
+            # --- COLISÕES ---
             hits = pygame.sprite.groupcollide(self.player_bullets, self.enemies, True, True)
             for bullet, enemies_hit in hits.items():
                 for enemy in enemies_hit:
-                    explosion = Explosion(enemy.rect.center, speed=3)
+                    self.score += 100
+                    explosion = Explosion(enemy.rect.center, speed=2)
                     self.explosions.add(explosion)
-                    self.explosion_sound.play()  # <-- toca som da explosão
-                    print("Inimigo destruído!")
+                    self.explosion_sound.play()
 
-            if pygame.sprite.spritecollide(self.player_group.sprite, self.enemy_bullets, True):
-                explosion = Explosion(self.player.rect.center, speed=3)
-                self.explosions.add(explosion)
-                self.explosion_sound.play()
-                print("Player atingido!")
+                    # chance de dropar vida (ex: 20%)
+                    if random.random() < 0.2:
+                        life = Life(enemy.rect.center)
+                        self.life_drops.add(life)
 
-            if pygame.sprite.spritecollide(self.player_group.sprite, self.enemies, True):
-                explosion = Explosion(self.player.rect.center, speed=3)
-                self.explosions.add(explosion)
-                self.explosion_sound.play()
-                print("Player colidiu com inimigo!")
+            if self.player_group:
+                player = self.player_group.sprite
 
-            # Desenho
+                # colisão com tiros inimigos
+                if pygame.sprite.spritecollide(player, self.enemy_bullets, True):
+                    player.health -= 1
+                    if player.health <= 0:
+                        explosion = Explosion(player.rect.center, speed=2)
+                        self.explosions.add(explosion)
+                        self.explosion_sound.play()
+                        self.player_group.empty()
+                        return GameOver(self.window, self.score).run()
+
+                # colisão com inimigos
+                if pygame.sprite.spritecollide(player, self.enemies, True):
+                    player.health -= 1
+                    if player.health <= 0:
+                        explosion = Explosion(player.rect.center, speed=2)
+                        self.explosions.add(explosion)
+                        self.explosion_sound.play()
+                        self.player_group.empty()
+                        return GameOver(self.window, self.score).run()
+
+                if pygame.sprite.spritecollide(self.player_group.sprite, self.life_drops, True):
+                    self.player.health = min(self.player.health + 1, 3)
+
+            # --- DESENHO ---
             self.window.fill((0, 0, 0))
             for bg in self.bg_layers:
                 self.window.blit(bg.image, bg.rect)
@@ -127,11 +160,15 @@ class Level:
             self.player_bullets.draw(self.window)
             self.enemy_bullets.draw(self.window)
             self.explosions.draw(self.window)
+            self.life_drops.update()
+            self.life_drops.draw(self.window)
 
-            # debug info
-            self.level_text(20, f'fps: {self.clock.get_fps():.0f}', WHITE, (10, HEIGHT - 35))
-            self.level_text(20, f'inimigos: {len(self.enemies)}', WHITE, (10, HEIGHT - 20))
-            self.level_text(20, f'tiros: {len(self.player_bullets) + len(self.enemy_bullets)}', WHITE, (10, HEIGHT - 50))
+            # HUD
+            self.level_text(25, f'Life: {self.player.health if self.player_group else 0}', (255, 50, 50), (10, 10))
+            self.level_text(25, f'Score: {self.score}', (255, 255, 0), (WIDTH - 200, 10))
+            minutes = self.elapsed_time // 60
+            seconds = self.elapsed_time % 60
+            self.level_text(25, f'Time: {minutes:02}:{seconds:02}', WHITE, (WIDTH//2 - 50, 10))
 
             pygame.display.flip()
 
@@ -140,3 +177,4 @@ class Level:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(topleft=text_pos)
         self.window.blit(surf, rect)
+

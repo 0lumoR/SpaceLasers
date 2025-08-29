@@ -1,6 +1,7 @@
 import pygame
 from abc import ABC
 
+
 class Entity(ABC, pygame.sprite.Sprite):
     def __init__(self, name: str, position: tuple):
         super().__init__()

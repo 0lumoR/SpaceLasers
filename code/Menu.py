@@ -62,5 +62,3 @@ class Menu:
         else:
             rect.topleft = text_pos
         self.window.blit(surf, rect)
-
-

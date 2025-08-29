@@ -2,6 +2,7 @@ import pygame
 from code.Entity import Entity
 from code.Const import WIDTH, HEIGHT, ENTITY_SPEED
 
+
 class Player(Entity):
     def __init__(self, name, position):
         super().__init__(name, position)
@@ -26,4 +27,3 @@ class Player(Entity):
 
     def update(self):
         self.move()
-

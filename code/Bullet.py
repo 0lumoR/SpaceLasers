@@ -2,6 +2,7 @@ import pygame
 from code.Entity import Entity
 from code.Const import HEIGHT
 
+
 class Bullet(Entity):
     def __init__(self, name: str, position: tuple, direction: int, speed: int = 7, dx: int = 0):
         super().__init__(name, position)
@@ -18,4 +19,3 @@ class Bullet(Entity):
 
     def update(self):
         self.move()
-
