@@ -42,7 +42,6 @@ class Level:
         self.elapsed_time = 0
 
         # sons
-
         self.shoot_sound = pygame.mixer.Sound("./assets/lasersfx.ogg")
         self.explosion_sound = pygame.mixer.Sound("./assets/explosionsfx.wav")
         self.explosion_sound.set_volume(0.3)
@@ -84,7 +83,7 @@ class Level:
                     self.last_shot_time = current_time
 
             # --- SPAWN DE INIMIGOS ---
-            self.enemy_spawn_timer += 1
+            self.enemy_spawn_timer += 1.5
             if self.enemy_spawn_timer >= self.enemy_spawn_interval:
                 self.enemy_spawn_timer = 0
                 enemy_type = random.choice(['enemy1', 'enemy2', 'enemy3'])
@@ -138,7 +137,7 @@ class Level:
                         self.explosions.add(explosion)
                         self.explosion_sound.play()
                         self.player_group.empty()
-                        return GameOver(self.window, self.score).run()
+                        return GameOver(self.window, self.score, self.name).run()
 
                 # colisão com inimigos
                 if pygame.sprite.spritecollide(player, self.enemies, True):
@@ -148,7 +147,8 @@ class Level:
                         self.explosions.add(explosion)
                         self.explosion_sound.play()
                         self.player_group.empty()
-                        return GameOver(self.window, self.score).run()
+                        return GameOver(self.window, self.score, self.elapsed_time).run()
+
 
                 # colisão com drop de vida
                 if pygame.sprite.spritecollide(player, self.life_drops, True):
@@ -180,5 +180,8 @@ class Level:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(topleft=text_pos)
         self.window.blit(surf, rect)
+
+
+
 
 
