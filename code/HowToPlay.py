@@ -19,12 +19,7 @@ class HowToPlay:
         self.arrowkeys_rect = self.arrowkeys_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
 
     def run(self):
-        pygame.mixer.music.load("./assets/menuGOsong.mp3")
-        pygame.mixer.music.set_volume(0.3)
-        pygame.mixer.music.play(-1)
-
         clock = pygame.time.Clock()
-
         while True:
             clock.tick(60)
 
@@ -44,10 +39,10 @@ class HowToPlay:
                 self.window.blit(bg.image, bg.rect)
 
             # textos explicativos
-            self.menu_text(50, "HOW TO PLAY", WHITE, (WIDTH // 2, 50), center=True)
-            self.menu_text(30, "Move with arrow keys", WHITE, (WIDTH // 2, HEIGHT // 2 - 120), center=True)
-            self.menu_text(30, "Shoot with SPACEBAR", WHITE, (WIDTH // 2, HEIGHT // 2 + 30), center=True)
-            self.menu_text(15, "Press Esc to go back to menu", WHITE, (WIDTH // 2, HEIGHT - 20), center=True)
+            self.game_over_text(50, "HOW TO PLAY", WHITE, (WIDTH // 2, 50))
+            self.game_over_text(30, "Move with arrow keys", WHITE, (WIDTH // 2, HEIGHT // 2 - 120))
+            self.game_over_text(30, "Shoot with SPACEBAR", WHITE, (WIDTH // 2, HEIGHT // 2 + 30))
+            self.game_over_text(15, "Press Esc to go back to menu", WHITE, (WIDTH // 2, HEIGHT - 20))
 
             # desenhar imagens redimensionadas
             self.window.blit(self.arrowkeys_img, self.arrowkeys_rect)
@@ -55,13 +50,9 @@ class HowToPlay:
 
             pygame.display.flip()
 
-    def menu_text(self, text_size: int, text: str, text_color: tuple, text_pos: tuple, center=False):
+    def game_over_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
         """Desenha texto na tela, similar ao level_text do Level.py"""
         font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
         surf = font.render(text, True, text_color).convert_alpha()
-        rect = surf.get_rect()
-        if center:
-            rect.center = text_pos
-        else:
-            rect.topleft = text_pos
+        rect = surf.get_rect(center=text_center_pos)
         self.window.blit(surf, rect)

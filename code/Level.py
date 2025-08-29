@@ -10,7 +10,7 @@ from code.Explosion import Explosion
 
 
 class Level:
-    def __init__(self, window, name, difficulty):
+    def __init__(self, window, name):
         self.window = window
         self.name = name
         self.bg_layers = EntityFactory.get_backgrounds()
@@ -51,8 +51,7 @@ class Level:
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
-        running = True
-        while running:
+        while True:
             self.clock.tick(60)
             keys = pygame.key.get_pressed()
 
@@ -74,9 +73,10 @@ class Level:
 
             # --- TIRO PLAYER ---
             if self.player_group:
+                player = self.player_group.sprite
                 current_time = pygame.time.get_ticks()
                 if keys[pygame.K_SPACE] and current_time - self.last_shot_time > self.shoot_cooldown:
-                    bullet = Bullet("playershot", self.player.rect.midtop, direction=-1, speed=10)
+                    bullet = Bullet("playershot", player.rect.midtop, direction=-1, speed=10)
                     self.player_bullets.add(bullet)
                     self.shoot_sound.play()
                     self.last_shot_time = current_time
@@ -94,6 +94,7 @@ class Level:
             self.player_bullets.update()
             self.enemy_bullets.update()
             self.explosions.update()
+            self.life_drops.update()
 
             # inimigos tentam atirar
             for enemy in self.enemies:
@@ -147,11 +148,11 @@ class Level:
                         self.player_group.empty()
                         return GameOver(self.window, self.score).run()
 
-                if pygame.sprite.spritecollide(self.player_group.sprite, self.life_drops, True):
-                    self.player.health = min(self.player.health + 1, 3)
+                # colisão com drop de vida
+                if pygame.sprite.spritecollide(player, self.life_drops, True):
+                    player.health = min(player.health + 1, 3)
 
             # --- DESENHO ---
-            self.window.fill((0, 0, 0))
             for bg in self.bg_layers:
                 self.window.blit(bg.image, bg.rect)
 
@@ -160,11 +161,11 @@ class Level:
             self.player_bullets.draw(self.window)
             self.enemy_bullets.draw(self.window)
             self.explosions.draw(self.window)
-            self.life_drops.update()
             self.life_drops.draw(self.window)
 
             # HUD
-            self.level_text(25, f'Life: {self.player.health if self.player_group else 0}', (255, 50, 50), (10, 10))
+            life_value = self.player_group.sprite.health if self.player_group else 0
+            self.level_text(25, f'Life: {life_value}', (255, 50, 50), (10, 10))
             self.level_text(25, f'Score: {self.score}', (255, 255, 0), (WIDTH - 200, 10))
             minutes = self.elapsed_time // 60
             seconds = self.elapsed_time % 60
@@ -177,4 +178,5 @@ class Level:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(topleft=text_pos)
         self.window.blit(surf, rect)
+
 

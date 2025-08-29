@@ -19,7 +19,7 @@ class EntityFactory:
     def get_entity(entity_name: str):
         match entity_name:
             case 'player':
-                return [Player('player', (WIDTH // 2, 550))]
+                return [Player('player', (WIDTH // 2, 530))]
             case 'enemy1':
                 return [Enemy('enemy1', (randint(40, WIDTH - 100), -100), bullet_type="enemyshot1", bullet_speed=5)]
             case 'enemy2':

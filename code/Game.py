@@ -13,8 +13,12 @@ class Game:
         pygame.display.set_caption("Space Lasers")
 
     def run(self):
-        running = True
-        while running:
+        pygame.mixer.music.load("./assets/menuGOsong.mp3")
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
+
+
+        while True:
             # --- MENU PRINCIPAL ---
             menu = Menu(self.window)
             choice = menu.run()
@@ -25,7 +29,7 @@ class Game:
             if choice == "START GAME":
                 level_running = True
                 while level_running:
-                    level = Level(self.window, 'Level', choice)
+                    level = Level(self.window, 'Level')
                     result = level.run()  # retorna "TRY AGAIN", "BACK TO MENU", "EXIT"
 
                     if result == "TRY AGAIN":
@@ -44,7 +48,6 @@ class Game:
                 continue
 
             elif choice == "SCORE":
-
                 score_screen = Score(self.window)
                 score_screen.run()
 
