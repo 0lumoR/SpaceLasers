@@ -25,7 +25,8 @@ class GameOver:
             # Eventos
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "EXIT"
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.KEYDOWN:
                     if self.input_mode:
                         # Input do nome do jogador
@@ -54,30 +55,27 @@ class GameOver:
                 self.window.blit(bg.image, bg.rect)
 
             # Título
-            self.menu_text(70, "GAME OVER", RED, (WIDTH // 2, 100), center=True)
+            self.menu_text(70, "GAME OVER", RED, (WIDTH // 2, 100))
 
             if self.input_mode:
                 # Mostrar input de nome
-                self.menu_text(40, f"Enter Name: {self.player_name}", YELLOW, (WIDTH // 2, 200), center=True)
+                self.menu_text(40, f"Enter Name: {self.player_name}", YELLOW, (WIDTH // 2, 200))
             else:
                 # Mostrar score e nome do jogador
-                self.menu_text(40, f'{self.player_name}: {self.score}', YELLOW, (WIDTH // 2, 200), center=True)
+                self.menu_text(40, f'{self.player_name}: {self.score}', YELLOW, (WIDTH // 2, 200))
                 # Opções do menu
                 for i, option in enumerate(GAME_OVER_OPTIONS):
                     color = YELLOW if i == self.selected else WHITE
-                    self.menu_text(40, option, color, (WIDTH // 2, 290 + i * 60), center=True)
+                    self.menu_text(40, option, color, (WIDTH // 2, 290 + i * 60))
 
             pygame.display.flip()
 
-    def menu_text(self, text_size: int, text: str, text_color: tuple, text_pos: tuple, center=False):
+
+    def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
         """Desenha texto na tela, similar ao level_text do Level.py"""
         font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
         surf = font.render(text, True, text_color).convert_alpha()
-        rect = surf.get_rect()
-        if center:
-            rect.center = text_pos
-        else:
-            rect.topleft = text_pos
+        rect = surf.get_rect(center=text_center_pos)
         self.window.blit(surf, rect)
 
 

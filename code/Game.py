@@ -37,7 +37,6 @@ class Game:
                     elif result == "BACK TO MENU":
                         level_running = False  # volta pro menu principal
                     elif result == "EXIT":
-                        running = False
                         break
 
             # --- OUTRAS OPÇÕES DO MENU ---

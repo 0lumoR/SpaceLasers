@@ -42,9 +42,11 @@ class Level:
         self.elapsed_time = 0
 
         # sons
-        pygame.mixer.init()
+
         self.shoot_sound = pygame.mixer.Sound("./assets/lasersfx.ogg")
         self.explosion_sound = pygame.mixer.Sound("./assets/explosionsfx.wav")
+        self.explosion_sound.set_volume(0.3)
+        self.shoot_sound.set_volume(0.5)
 
     def run(self):
         pygame.mixer.music.load('./assets/levelsong.mp3')
