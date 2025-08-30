@@ -17,7 +17,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 YELLOW = (255, 220, 90)
 
-# Velocidade de cada camada de background
+# Velocidades
 ENTITY_SPEED = {
     'player': 5,
     'enemy1': 2,

@@ -43,8 +43,7 @@ class Game:
                         # --- OUTRAS OPÇÕES DO MENU ---
             elif choice == "HOW TO PLAY":
                 how_to_play = HowToPlay(self.window)
-                how_to_play.run()  # abre tela de instruções
-                # após fechar a tela, volta automaticamente ao menu
+                how_to_play.run()
                 continue
 
             elif choice == "SCORE":

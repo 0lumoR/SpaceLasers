@@ -172,7 +172,7 @@ class Level:
             # formatar tempo em MM:SS
             minutes = self.elapsed_time // 60
             seconds = self.elapsed_time % 60
-            self.level_text(25, f'Time: {minutes:02}:{seconds:02}', WHITE, (WIDTH//2+250, 10))
+            self.level_text(25, f'Time: {minutes:02}:{seconds:02}', WHITE, (WIDTH // 2 + 250, 10))
 
             pygame.display.flip()
 

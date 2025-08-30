@@ -52,7 +52,6 @@ class Menu:
             pygame.display.flip()
 
     def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
-        """Desenha texto na tela, similar ao level_text do Level.py"""
         font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(center=text_center_pos)
