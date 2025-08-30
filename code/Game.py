@@ -37,9 +37,10 @@ class Game:
                     elif result == "BACK TO MENU":
                         level_running = False  # volta pro menu principal
                     elif result == "EXIT":
-                        break
+                        pygame.quit()
+                        return
 
-            # --- OUTRAS OPÇÕES DO MENU ---
+                        # --- OUTRAS OPÇÕES DO MENU ---
             elif choice == "HOW TO PLAY":
                 how_to_play = HowToPlay(self.window)
                 how_to_play.run()  # abre tela de instruções

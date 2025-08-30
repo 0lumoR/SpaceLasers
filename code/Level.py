@@ -137,7 +137,7 @@ class Level:
                         self.explosions.add(explosion)
                         self.explosion_sound.play()
                         self.player_group.empty()
-                        return GameOver(self.window, self.score, self.name).run()
+                        return GameOver(self.window, self.score, self.elapsed_time).run()
 
                 # colisão com inimigos
                 if pygame.sprite.spritecollide(player, self.enemies, True):
@@ -148,7 +148,6 @@ class Level:
                         self.explosion_sound.play()
                         self.player_group.empty()
                         return GameOver(self.window, self.score, self.elapsed_time).run()
-
 
                 # colisão com drop de vida
                 if pygame.sprite.spritecollide(player, self.life_drops, True):
@@ -168,10 +167,12 @@ class Level:
             # HUD
             life_value = self.player_group.sprite.health if self.player_group else 0
             self.level_text(25, f'Life: {life_value}', (255, 50, 50), (10, 10))
-            self.level_text(25, f'Score: {self.score}', (255, 255, 0), (WIDTH - 200, 10))
+            self.level_text(25, f'Score: {self.score}', (255, 255, 0), (10, 570))
+
+            # formatar tempo em MM:SS
             minutes = self.elapsed_time // 60
             seconds = self.elapsed_time % 60
-            self.level_text(25, f'Time: {minutes:02}:{seconds:02}', WHITE, (WIDTH//2 - 50, 10))
+            self.level_text(25, f'Time: {minutes:02}:{seconds:02}', WHITE, (WIDTH//2+250, 10))
 
             pygame.display.flip()
 
@@ -180,8 +181,3 @@ class Level:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(topleft=text_pos)
         self.window.blit(surf, rect)
-
-
-
-
-

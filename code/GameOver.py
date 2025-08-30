@@ -2,7 +2,6 @@ import pygame
 from code.Const import WIDTH, RED, YELLOW, GAME_OVER_OPTIONS, WHITE
 from code.EntityFactory import EntityFactory
 from code.DBProxy import DBProxy
-import datetime
 
 
 class GameOver:
@@ -10,12 +9,12 @@ class GameOver:
         self.window = window
         self.score = score
         self.elapsed_time = elapsed_time
-        self.player_name = ""  # digitado pelo jogador
+        self.player_name = ""  # Nome digitado pelo jogador
         self.max_chars = 4
         self.bg_layers = EntityFactory.get_backgrounds()
         self.selected = 0
         self.input_mode = True  # True enquanto o jogador digita o nome
-        self.db = DBProxy("scores.db")
+        self.db = DBProxy("scores.db")  # banco de dados
 
     def run(self):
         pygame.mixer.music.load("./assets/menuGOsong.mp3")
@@ -27,6 +26,7 @@ class GameOver:
         while True:
             clock.tick(60)
 
+            # --- EVENTOS ---
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -35,12 +35,11 @@ class GameOver:
                     if self.input_mode:
                         if event.key == pygame.K_RETURN and self.player_name:
                             self.input_mode = False
-                            # salvar score no banco
+                            # salvar score no banco (DBProxy já gera a data)
                             self.db.insert_score(
                                 self.player_name,
                                 self.score,
-                                self.elapsed_time,
-                                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                self.elapsed_time
                             )
                         elif event.key == pygame.K_BACKSPACE:
                             self.player_name = self.player_name[:-1]
@@ -55,16 +54,24 @@ class GameOver:
                         elif event.key == pygame.K_RETURN:
                             return GAME_OVER_OPTIONS[self.selected]
 
+            # --- ATUALIZAR BACKGROUND ---
             for bg in self.bg_layers:
                 bg.update()
                 self.window.blit(bg.image, bg.rect)
 
+            # --- TEXTO ---
             self.menu_text(70, "GAME OVER", RED, (WIDTH // 2, 100))
 
             if self.input_mode:
                 self.menu_text(40, f"Enter Name: {self.player_name}", YELLOW, (WIDTH // 2, 200))
             else:
-                self.menu_text(40, f'{self.player_name}: {self.score}', YELLOW, (WIDTH // 2, 200))
+                # formatar elapsed_time para MM:SS
+                minutes = self.elapsed_time // 60
+                seconds = self.elapsed_time % 60
+                time_str = f"{minutes:02}:{seconds:02}"
+
+                self.menu_text(40, f'{self.player_name}: {self.score} pts - {time_str}', YELLOW, (WIDTH // 2, 200))
+
                 for i, option in enumerate(GAME_OVER_OPTIONS):
                     color = YELLOW if i == self.selected else WHITE
                     self.menu_text(40, option, color, (WIDTH // 2, 290 + i * 60))
@@ -76,6 +83,7 @@ class GameOver:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(center=text_center_pos)
         self.window.blit(surf, rect)
+
 
 
 
