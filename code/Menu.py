@@ -1,5 +1,5 @@
 import pygame
-from code.Const import WIDTH, WHITE, YELLOW, MENU_OPTIONS, HEIGHT
+from code.Const import WIDTH, WHITE, YELLOW, MENU_OPTIONS, HEIGHT, PLAYER_KEY_UP, PLAYER_KEY_DOWN, MENU_KEY_SELECT
 from code.EntityFactory import EntityFactory
 
 
@@ -12,8 +12,6 @@ class Menu:
         self.player_rect = self.player_img.get_rect(center=(WIDTH // 2, 530))
 
     def run(self):
-
-
         clock = pygame.time.Clock()
 
         while True:
@@ -22,29 +20,27 @@ class Menu:
                 if event.type == pygame.QUIT:
                     return quit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_DOWN:
+                    if event.key in PLAYER_KEY_DOWN:
                         self.selected = (self.selected + 1) % len(MENU_OPTIONS)
-                    elif event.key == pygame.K_UP:
+                    elif event.key in PLAYER_KEY_UP:
                         self.selected = (self.selected - 1) % len(MENU_OPTIONS)
-                    elif event.key == pygame.K_RETURN:
+                    elif event.key in MENU_KEY_SELECT:
                         return MENU_OPTIONS[self.selected]
 
             # atualizar backgrounds
             for bg in self.bg_layers:
                 bg.update()
 
-            # desenhar backgrounds
             for bg in self.bg_layers:
                 self.window.blit(bg.image, bg.rect)
 
-            # nave decorativa
             self.window.blit(self.player_img, self.player_rect)
 
             # título
             self.menu_text(70, "SPACE LASERS", WHITE, (WIDTH // 2, 100))
-            self.menu_text(15, "Press Enter select", WHITE, (WIDTH // 2, HEIGHT - 20))
+            self.menu_text(15, "Press Enter or Space to select options", WHITE, (WIDTH // 2, HEIGHT - 20))
 
-            # opções do menu
+            # opções
             for i, option in enumerate(MENU_OPTIONS):
                 color = YELLOW if i == self.selected else WHITE
                 self.menu_text(40, option, color, (WIDTH // 2, 290 + i * 60))
@@ -56,3 +52,4 @@ class Menu:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(center=text_center_pos)
         self.window.blit(surf, rect)
+
