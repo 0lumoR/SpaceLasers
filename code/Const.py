@@ -31,5 +31,5 @@ PLAYER_KEY_RIGHT = [pygame.K_RIGHT, pygame.K_d]
 
 # Ações
 PLAYER_KEY_SHOOT = [pygame.K_SPACE,pygame.K_RCTRL]
-MENU_KEY_SELECT = [pygame.K_RETURN, pygame.K_SPACE]
+MENU_KEY_SELECT = [pygame.K_RETURN]
 MENU_KEY_BACK = [pygame.K_ESCAPE]

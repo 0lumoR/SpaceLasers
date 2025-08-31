@@ -1,52 +1,89 @@
 import pygame
-from code.Const import WIDTH, HEIGHT, WHITE, YELLOW, MENU_KEY_SELECT, MENU_KEY_BACK, PLAYER_KEY_UP, PLAYER_KEY_DOWN
+from code.Const import WIDTH, RED, YELLOW, GAME_OVER_OPTIONS, WHITE, MENU_OPTIONS, MENU_KEY_SELECT, PLAYER_KEY_UP, \
+    PLAYER_KEY_DOWN
 from code.EntityFactory import EntityFactory
+from code.DBProxy import DBProxy
 
 
 class GameOver:
-    def __init__(self, window, score):
+    def __init__(self, window, score, elapsed_time):
         self.window = window
         self.score = score
+        self.elapsed_time = elapsed_time
+        self.player_name = ""  # Nome digitado pelo jogador
+        self.max_chars = 4
         self.bg_layers = EntityFactory.get_backgrounds()
         self.selected = 0
-        self.options = ["Retry", "Menu", "Quit"]
+        self.input_mode = True  # True enquanto o jogador digita o nome
+        self.db = DBProxy("scores.db")  # banco de dados
 
     def run(self):
+        pygame.mixer.music.load("./assets/menuGOsong.mp3")
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
+
         clock = pygame.time.Clock()
 
         while True:
             clock.tick(60)
+
+            # --- EVENTOS ---
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "quit"
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key in PLAYER_KEY_DOWN:
-                        self.selected = (self.selected + 1) % len(self.options)
-                    elif event.key in PLAYER_KEY_UP:
-                        self.selected = (self.selected - 1) % len(self.options)
-                    elif event.key in MENU_KEY_SELECT:
-                        return self.options[self.selected]
-                    elif event.key in MENU_KEY_BACK:
-                        return "menu"
+                    if self.input_mode:
+                        if event.key == pygame.K_RETURN and self.player_name:
+                            self.input_mode = False
+                            # salvar score no banco (DBProxy já gera a data)
+                            self.db.insert_score(
+                                self.player_name,
+                                self.score,
+                                self.elapsed_time
+                            )
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.player_name = self.player_name[:-1]
+                        elif len(self.player_name) < self.max_chars:
+                            if event.unicode.isalnum():
+                                self.player_name += event.unicode.upper()
+                    else:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key in PLAYER_KEY_DOWN:
+                                self.selected = (self.selected + 1) % len(GAME_OVER_OPTIONS)
+                            elif event.key in PLAYER_KEY_UP:
+                                self.selected = (self.selected - 1) % len(GAME_OVER_OPTIONS)
+                            elif event.key in MENU_KEY_SELECT:
+                                return GAME_OVER_OPTIONS[self.selected]
 
+            # --- ATUALIZAR BACKGROUND ---
             for bg in self.bg_layers:
                 bg.update()
                 self.window.blit(bg.image, bg.rect)
 
-            # textos
-            self.draw_text(70, "GAME OVER", WHITE, (WIDTH // 2, 100))
-            self.draw_text(30, f"Score: {self.score}", WHITE, (WIDTH // 2, 180))
+            # --- TEXTO ---
+            self.menu_text(70, "GAME OVER", RED, (WIDTH // 2, 100))
 
-            for i, option in enumerate(self.options):
-                color = YELLOW if i == self.selected else WHITE
-                self.draw_text(40, option, color, (WIDTH // 2, 300 + i * 60))
+            if self.input_mode:
+                self.menu_text(40, f"Enter Name: {self.player_name}", YELLOW, (WIDTH // 2, 200))
+            else:
+                # formatar elapsed_time para MM:SS
+                minutes = self.elapsed_time // 60
+                seconds = self.elapsed_time % 60
+                time_str = f"{minutes:02}:{seconds:02}"
+
+                self.menu_text(40, f'{self.player_name}: {self.score} pts - {time_str}', YELLOW, (WIDTH // 2, 200))
+
+                for i, option in enumerate(GAME_OVER_OPTIONS):
+                    color = YELLOW if i == self.selected else WHITE
+                    self.menu_text(40, option, color, (WIDTH // 2, 290 + i * 60))
 
             pygame.display.flip()
 
-    def draw_text(self, size, text, color, pos):
-        font = pygame.font.Font("./assets/kenvector_future.ttf", size)
-        surf = font.render(text, True, color).convert_alpha()
-        rect = surf.get_rect(center=pos)
+    def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
+        font = pygame.font.Font("./assets/kenvector_future.ttf", text_size)
+        surf = font.render(text, True, text_color).convert_alpha()
+        rect = surf.get_rect(center=text_center_pos)
         self.window.blit(surf, rect)
 
 
