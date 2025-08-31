@@ -1,5 +1,6 @@
 import pygame
-from code.Const import WIDTH, RED, YELLOW, GAME_OVER_OPTIONS, WHITE
+from code.Const import WIDTH, RED, YELLOW, GAME_OVER_OPTIONS, WHITE, MENU_OPTIONS, MENU_KEY_SELECT, PLAYER_KEY_UP, \
+    PLAYER_KEY_DOWN
 from code.EntityFactory import EntityFactory
 from code.DBProxy import DBProxy
 
@@ -47,12 +48,13 @@ class GameOver:
                             if event.unicode.isalnum():
                                 self.player_name += event.unicode.upper()
                     else:
-                        if event.key == pygame.K_DOWN:
-                            self.selected = (self.selected + 1) % len(GAME_OVER_OPTIONS)
-                        elif event.key == pygame.K_UP:
-                            self.selected = (self.selected - 1) % len(GAME_OVER_OPTIONS)
-                        elif event.key == pygame.K_RETURN:
-                            return GAME_OVER_OPTIONS[self.selected]
+                        if event.type == pygame.KEYDOWN:
+                            if event.key in PLAYER_KEY_DOWN:
+                                self.selected = (self.selected + 1) % len(GAME_OVER_OPTIONS)
+                            elif event.key in PLAYER_KEY_UP:
+                                self.selected = (self.selected - 1) % len(GAME_OVER_OPTIONS)
+                            elif event.key in MENU_KEY_SELECT:
+                                return GAME_OVER_OPTIONS[self.selected]
 
             # --- ATUALIZAR BACKGROUND ---
             for bg in self.bg_layers:
@@ -83,6 +85,7 @@ class GameOver:
         surf = font.render(text, True, text_color).convert_alpha()
         rect = surf.get_rect(center=text_center_pos)
         self.window.blit(surf, rect)
+
 
 
 
